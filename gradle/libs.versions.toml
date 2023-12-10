@@ -1,5 +1,6 @@
 [versions]
 agp = "8.1.4"
+datastorePreferences = "1.0.0"
 hiltNavigationCompose = "1.1.0"
 hiltVersion = "2.48"
 kotlin = "1.9.0"
@@ -11,7 +12,9 @@ lifecycleRuntimeKtx = "2.6.2"
 activityCompose = "1.8.1"
 composeBom = "2023.08.00"
 kspVersion = "1.9.10-1.0.13"
+media3Exoplayer = "1.2.0"
 navigationCompose = "2.7.5"
+numberpicker = "1.0.3"
 room = "2.6.1"
 
 [libraries]
@@ -21,7 +24,8 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
 
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3Exoplayer" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
@@ -34,6 +38,11 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+numberpicker = { module = "com.chargemap.compose:numberpicker", version.ref = "numberpicker" }
 
 
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
