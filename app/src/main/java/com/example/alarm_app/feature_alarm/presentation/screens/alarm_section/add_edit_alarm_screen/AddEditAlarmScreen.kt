@@ -1,4 +1,4 @@
-package com.example.alarm_app.feature_alarm.presentation.screens.add_edi_allarm_screen
+package com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,69 +7,59 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.OptIn
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-
-import androidx.compose.material.Surface
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.IntentCompat.getParcelableExtra
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.media3.common.MediaItem
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavController
+import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components.DatesPicker
+import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components.PreferenceItem
+import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components.TimePicker
 import com.example.alarm_app.feature_alarm.presentation.util.Constants
-import com.example.alarm_app.feature_alarm.presentation.util.Screen
+
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun AddEditAlarmScreen(
-    context: Context,
     navController: NavController,
     viewModel: AddEditAlarmViewModel = hiltViewModel()
 ) {
-    var timeInMinutes = viewModel.timeInMinutes
-    var isMorning = viewModel.isMorning
 
-    var selectedDats = viewModel.selectedDats
+    val context = LocalContext.current
 
-    var labelValue = viewModel.labelValue
+    val timeInMinutes = viewModel.timeInMinutes
+    val isMorning = viewModel.isMorning
 
-    var isAlarmSoundEnabled = viewModel.isAlarmSoundEnabled
-    var alarmSoundName = viewModel.alarmSoundName
+    val selectedDats = viewModel.selectedDats
 
-    var isVibrationEnabled = viewModel.isVibrationEnabled
+    val labelValue = viewModel.labelValue
+
+    val isAlarmSoundEnabled = viewModel.isAlarmSoundEnabled
+    val alarmSoundName = viewModel.alarmSoundName
+
+    val isVibrationEnabled = viewModel.isVibrationEnabled
 
     val addAlarmLambda = remember<(Context) -> Unit> {
-        { context ->
-            viewModel.addUpdateAlarm(context) {
-                navController.popBackStack()
-            }
+        {
+            context -> viewModel.addUpdateAlarm(context, navController)
         }
     }
 
@@ -86,9 +76,13 @@ fun AddEditAlarmScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        Column(modifier = Modifier.padding(start = it.calculateTopPadding())) {
+        Column(
+            modifier = Modifier
+                .padding(start = it.calculateTopPadding())
+        ) {
             TimePicker(
                 timeInMinutes = timeInMinutes.intValue,
                 isMorning = isMorning.value,
@@ -130,11 +124,12 @@ fun AddEditAlarmScreen(
                 }
 
             }
-
             Row {
                 TextButton(
                     modifier = Modifier.weight(1f),
-                    onClick = { navController.popBackStack() }
+                    onClick = {
+                        navController.popBackStack()
+                    }
                 ) {
                     Text(text = "Cancel")
                 }
@@ -175,3 +170,5 @@ fun getDefaultRingtoneName(context: Context) =
 
 fun getRingtoneName(context: Context, uri: Uri): String =
     RingtoneManager.getRingtone(context, uri).getTitle(context)
+
+

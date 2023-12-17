@@ -2,12 +2,13 @@ package com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repo
 
 import com.example.alarm_app.feature_alarm.data.repository.room.AlarmRepository
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetAlarmByPickedTime @Inject constructor (
+class GetAllAlarms @Inject constructor (
     private val repository: AlarmRepository
 ) {
-    suspend operator fun invoke(alarm: Alarm): Alarm? {
-        return repository.getAlarmByPickedTime(alarm)
+    operator fun invoke(): Flow<List<Alarm>>  {
+        return repository.getAllAlarm()
     }
 }

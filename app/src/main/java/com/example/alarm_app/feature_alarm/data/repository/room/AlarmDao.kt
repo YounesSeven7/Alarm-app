@@ -16,10 +16,10 @@ interface AlarmDao {
     fun getAllAlarms(): Flow<List<Alarm>>
 
     @Query("select * from alarm where id = :id")
-    fun getAlarm(id: Int): Alarm?
+    suspend fun getAlarm(id: Int): Alarm?
 
-    @Query("select * from alarm where timeInMinutes = :timeInMinutes")
-    suspend fun getAlarmByPickedTime(timeInMinutes: Int): Alarm?
+    @Query("select * from alarm where timeInMinutes = :timeInMinutes and id != :id")
+    suspend fun getAlarmByPickedTime(id: Int?,timeInMinutes: Int): Alarm?
 
     @Query("select * from alarm where isEnabled = 1")
     fun getEnabledAlarms(): Flow<List<Alarm>>
@@ -29,5 +29,10 @@ interface AlarmDao {
 
     @Delete
     suspend fun deleteAlarm(alarm: Alarm)
+
+    @Delete
+    suspend fun deleteAlarms(alarmList: List<Alarm>)
+
+
 
 }

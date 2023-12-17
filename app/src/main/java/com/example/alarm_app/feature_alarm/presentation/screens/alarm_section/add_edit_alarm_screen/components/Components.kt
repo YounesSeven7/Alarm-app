@@ -1,6 +1,5 @@
-package com.example.alarm_app.feature_alarm.presentation.screens.add_edi_allarm_screen
+package com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -30,9 +29,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.chargemap.compose.numberpicker.ListItemPicker
-import com.chargemap.compose.numberpicker.NumberPicker
 import com.example.alarm_app.feature_alarm.dpToPx
+import com.example.alarm_app.feature_alarm.presentation.screens.time_picker_library.ListItemPicker
+import com.example.alarm_app.feature_alarm.presentation.screens.time_picker_library.NumberPicker
 import com.example.alarm_app.feature_alarm.presentation.util.Constants
 import com.example.alarm_app.feature_alarm.presentation.util.getAlarmDaysText
 import com.example.alarm_app.feature_alarm.presentation.util.isDaySelected
@@ -95,6 +94,12 @@ fun TimePicker(
     }
 }
 
+
+/* todo
+*   we will change this function
+*   the lambda function will be like that -> onDayChecked: (selectedDay: Int, selectionState:Boolean) -> Unit
+*
+* */
 @Composable
 fun DatesPicker(
     selectedDays: Int,

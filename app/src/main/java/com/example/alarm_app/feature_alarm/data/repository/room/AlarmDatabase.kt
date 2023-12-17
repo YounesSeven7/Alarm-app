@@ -4,7 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
 
-@Database(entities = [Alarm::class], version = 1)
+@Database(entities = [Alarm::class], version = 2)
 abstract class AlarmDatabase: RoomDatabase() {
     abstract val alarmDao: AlarmDao
 

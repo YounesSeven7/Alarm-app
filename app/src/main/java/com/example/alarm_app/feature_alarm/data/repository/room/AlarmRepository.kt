@@ -7,14 +7,16 @@ interface AlarmRepository {
 
     fun getAllAlarm(): Flow<List<Alarm>>
 
-    fun getAlarm(id: Int): Alarm?
+    suspend fun getAlarm(id: Int): Alarm?
 
-    suspend fun getAlarmByPickedTime(timeInMinutes: Int): Alarm?
+    suspend fun getAlarmByPickedTime(alarm: Alarm): Alarm?
 
     fun getEnabledAlarms(): Flow<List<Alarm>>
 
     suspend fun insertAlarm(alarm: Alarm)
 
     suspend fun deleteAlarm(alarm: Alarm)
+
+    suspend fun deleteAlarms(alarmList: List<Alarm>)
 
 }

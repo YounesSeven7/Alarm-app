@@ -13,13 +13,15 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
 import com.example.alarm_app.feature_alarm.presentation.util.Constants
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 fun createAlarmNotificationChannel(notificationManager: NotificationManager) {
     val channelId = Constants.ALARM_NOTIFICATION_CHANNEL_ID
     val channelName = Constants.ALARM_NOTIFICATION_CHANNEL_NAME
     val importance = NotificationManager.IMPORTANCE_HIGH
 
-    val channel = NotificationChannel(channelId, channelName, importance)
-    notificationManager.createNotificationChannel(channel)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(channelId, channelName, importance)
+        notificationManager.createNotificationChannel(channel)
+    }
 }
 

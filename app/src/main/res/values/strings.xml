@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Alarm App</string>
+    <string name="alarm">Alarm</string>
+    <string name="stopwatch">Stopwatch</string>
 </resources>

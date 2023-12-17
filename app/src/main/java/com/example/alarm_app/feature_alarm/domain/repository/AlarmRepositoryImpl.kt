@@ -11,12 +11,12 @@ class AlarmRepositoryImpl(private val dao: AlarmDao): AlarmRepository {
         return dao.getAllAlarms()
     }
 
-    override fun getAlarm(id: Int): Alarm? {
+    override suspend  fun getAlarm(id: Int): Alarm? {
         return dao.getAlarm(id)
     }
 
-    override suspend fun getAlarmByPickedTime(timeInMinutes: Int): Alarm? {
-        return dao.getAlarmByPickedTime(timeInMinutes)
+    override suspend fun getAlarmByPickedTime(alarm: Alarm): Alarm? {
+        return dao.getAlarmByPickedTime(alarm.id, alarm.timeInMinutes)
     }
 
     override fun getEnabledAlarms(): Flow<List<Alarm>> {
@@ -29,5 +29,9 @@ class AlarmRepositoryImpl(private val dao: AlarmDao): AlarmRepository {
 
     override suspend fun deleteAlarm(alarm: Alarm) {
         return dao.deleteAlarm(alarm)
+    }
+
+    override suspend fun deleteAlarms(alarmList: List<Alarm>) {
+        return dao.deleteAlarms(alarmList)
     }
 }

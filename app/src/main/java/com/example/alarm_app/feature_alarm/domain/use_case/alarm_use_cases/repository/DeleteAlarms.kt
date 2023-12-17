@@ -4,10 +4,10 @@ import com.example.alarm_app.feature_alarm.data.repository.room.AlarmRepository
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
 import javax.inject.Inject
 
-class GetAlarmByPickedTime @Inject constructor (
+class DeleteAlarms @Inject constructor (
     private val repository: AlarmRepository
 ) {
-    suspend operator fun invoke(alarm: Alarm): Alarm? {
-        return repository.getAlarmByPickedTime(alarm)
+    suspend operator fun invoke(alarmList: List<Alarm>) {
+        repository.deleteAlarms(alarmList)
     }
 }

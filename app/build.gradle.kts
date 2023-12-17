@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     //id("com.google.dagger.hilt.android")
     alias(libs.plugins.hilt)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -60,12 +61,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation (libs.androidx.material.icons.extended)
 
     implementation(libs.bundles.compose)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -74,7 +78,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation (libs.numberpicker)
 
@@ -82,6 +86,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer.dash)
 
     implementation(libs.androidx.datastore.preferences)
+
 
 
     debugImplementation(libs.bundles.debug.compose)

@@ -20,6 +20,8 @@ class AlarmScheduling @Inject constructor(
 
     @SuppressLint("ScheduleExactAlarm")
     fun scheduleAlarm(context: Context, alarm: Alarm) {
+        if (alarm.days == 0) return
+
         val intent = getIntent(context, alarm)
         val pendingIntent = context.getPendingIntent(intent, alarm)
 
@@ -39,8 +41,8 @@ class AlarmScheduling @Inject constructor(
         alarmManager.cancel(pendingIntent)
     }
 
-    private fun getIntent(context: Context, alarm: Alarm) =  Intent(context, AlarmService::class.java)
-        .apply {
+    private fun getIntent(context: Context, alarm: Alarm) =
+        Intent(context, AlarmService::class.java).apply {
             action = Constants.ACTION_START_ALARM
             putExtra(Constants.EXTRA_ALARM, alarm)
         }
@@ -49,14 +51,14 @@ class AlarmScheduling @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             PendingIntent.getForegroundService(
                 this,
-                alarm.id,
+                alarm.timeInMinutes,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )!!
         } else {
             PendingIntent.getService(
                 this,
-                alarm.id,
+                alarm.timeInMinutes,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

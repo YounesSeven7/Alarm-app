@@ -5,8 +5,10 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
@@ -20,6 +22,7 @@ import com.example.alarm_app.feature_alarm.presentation.util.getSerializableExtr
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class AlarmService: Service() {
 
@@ -39,11 +42,20 @@ class AlarmService: Service() {
     }
 
     private fun start(intent: Intent) {
-        val alarm = intent.getSerializableExtraCompat(Constants.EXTRA_ALARM, Alarm::class.java)
+        val alarm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(Constants.EXTRA_ALARM, Alarm::class.java)!!
+        } else {
+            intent.getParcelableArrayExtra(Constants.EXTRA_ALARM) as Alarm
+        }
+
         val notification = getAlarmNotification(alarm)
         startForeground(Constants.ALARM_NOTIFICATION_ID, notification)
         // Todo grantReadUriPermission(soundUri)
 
+    }
+
+    override fun startForegroundService(service: Intent?): ComponentName? {
+        return super.startForegroundService(service)
     }
 
     private fun getAlarmNotification(alarm: Alarm): Notification {

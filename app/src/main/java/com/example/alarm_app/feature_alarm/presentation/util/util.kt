@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.alarm_app.feature_alarm.presentation.util
 
 import android.app.AlarmManager
@@ -28,10 +30,10 @@ fun getAlarmDaysText(days: Int): String {
 
 
 
-@Suppress("DEPRECATION", "UNCHECKED_CAST")
-fun <T : Serializable> Intent.getSerializableExtraCompat(name: String, clazz: Class<T>): T {
+
+inline fun <reified T : Serializable> Intent.getSerializableExtraCompat(name: String, clazz: Class<T>): T {
     val serializable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        this.getSerializableExtra(Constants.EXTRA_ALARM, Alarm::class.java)
+        this.getSerializableExtra(Constants.EXTRA_ALARM, T::class.java)
     } else {
         this.getSerializableExtra(Constants.EXTRA_ALARM)
     }
