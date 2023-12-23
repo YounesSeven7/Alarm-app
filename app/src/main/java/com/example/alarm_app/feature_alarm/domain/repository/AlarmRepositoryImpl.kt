@@ -19,11 +19,11 @@ class AlarmRepositoryImpl(private val dao: AlarmDao): AlarmRepository {
         return dao.getAlarmByPickedTime(alarm.id, alarm.timeInMinutes)
     }
 
-    override fun getEnabledAlarms(): Flow<List<Alarm>> {
+    override fun getEnabledAlarms():Flow<List<Alarm>> {
         return dao.getEnabledAlarms()
     }
 
-    override suspend fun insertAlarm(alarm: Alarm) {
+    override suspend fun insertAlarm(alarm: Alarm):Long {
         return dao.insertAlarm(alarm)
     }
 

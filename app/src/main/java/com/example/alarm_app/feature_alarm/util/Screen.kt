@@ -1,4 +1,4 @@
-package com.example.alarm_app.feature_alarm.presentation.util
+package com.example.alarm_app.feature_alarm.util
 
 sealed class Screen(val route: String, val Key: String?) {
     data object AlarmScreen: Screen(route = "alarm_screen", Key = null)

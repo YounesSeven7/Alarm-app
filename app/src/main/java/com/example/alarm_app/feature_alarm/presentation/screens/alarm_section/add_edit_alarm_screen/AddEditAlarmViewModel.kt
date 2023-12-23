@@ -3,8 +3,6 @@ package com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.a
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -18,10 +16,10 @@ import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repos
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repository.GetAlarm
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repository.GetAlarmByPickedTime
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.schedule.ScheduleAlarm
-import com.example.alarm_app.feature_alarm.presentation.util.Screen
-import com.example.alarm_app.feature_alarm.presentation.util.isDaySelected
-import com.example.alarm_app.feature_alarm.presentation.util.isMorning
-import com.example.alarm_app.feature_alarm.presentation.util.pow
+import com.example.alarm_app.feature_alarm.util.Screen
+import com.example.alarm_app.feature_alarm.util.isDaySelected
+import com.example.alarm_app.feature_alarm.util.isMorning
+import com.example.alarm_app.feature_alarm.util.pow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,7 +46,7 @@ class AddEditAlarmViewModel @Inject constructor(
     var labelValue =  mutableStateOf("")
 
     var isAlarmSoundEnabled =  mutableStateOf(true)
-    var alarmSoundName =  mutableStateOf(getDefaultRingtoneName(context))
+    var alarmSoundName =  mutableStateOf( "Silent")
 
     var alarmSoundUri: String? = null
 
@@ -95,8 +93,8 @@ class AddEditAlarmViewModel @Inject constructor(
                 val newSelectedDays = getNewSelectedDates(alarmInSameTime.days, newAlarm.days)
                 alarmInSameTime.copy(days = newSelectedDays).also { newAlarm = it }
             }
-            addAlarm(newAlarm)
-            scheduleAlarm(context, newAlarm)
+            val id = addAlarm(newAlarm)
+            scheduleAlarm(newAlarm.copy(id = id))
             navController.popBackStack()
         }
     }

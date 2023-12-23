@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.alarm_app.R
-import com.example.alarm_app.feature_alarm.presentation.util.Screen
+import com.example.alarm_app.feature_alarm.util.Screen
 
 
 enum class BottomBarDestination(

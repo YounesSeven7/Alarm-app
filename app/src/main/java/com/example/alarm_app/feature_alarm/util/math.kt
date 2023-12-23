@@ -1,5 +1,6 @@
-package com.example.alarm_app.feature_alarm.presentation.util
+package com.example.alarm_app.feature_alarm.util
 
+import android.icu.text.DecimalFormat
 import android.util.Log
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
 import java.time.LocalDateTime
@@ -22,7 +23,7 @@ fun getRemainingTimeInMinutesToAlarm(alarm: Alarm): Int {
 
     var remainingTimeInMinutes = 0
 
-    Log.d("younes", "${alarm.timeInMinutes}")
+
 
     if (isDaySelected(alarm.days, currentDayIndex) && alarm.timeInMinutes > currentTimeInMinutes) {
         remainingTimeInMinutes = alarm.timeInMinutes - currentTimeInMinutes
@@ -52,8 +53,6 @@ fun getTriggerTime(remainingTimeInMinutesToAlarm: Int): Long {
 }
 
 fun fromMinutesToHour(timeInMinutes: Int): Int {
-    val hour = timeInMinutes / 60
-    Log.d("younes", "hour -> $hour")
     return when (val hour = timeInMinutes / 60) {
         0 -> 12
         in 1..12 -> hour
@@ -64,6 +63,16 @@ fun fromMinutesToHour(timeInMinutes: Int): Int {
 fun isMorning(timeInMinutes: Int): Boolean {
     val hour = timeInMinutes / 60
     return (hour in 0..11)
+}
+
+
+
+fun fromSecondToTimeFormat(timeInSecond: Int): String {
+    val f = DecimalFormat("00")
+    val seconds = timeInSecond % 60
+    val minutes = (timeInSecond % 3600) / 60
+    val hours = timeInSecond / 3600
+    return "${f.format(hours)}:${f.format(minutes)}:${f.format(seconds)}"
 }
 
 

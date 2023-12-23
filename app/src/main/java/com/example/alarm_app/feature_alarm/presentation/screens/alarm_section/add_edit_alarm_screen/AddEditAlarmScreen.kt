@@ -28,12 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components.DatesPicker
 import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components.PreferenceItem
 import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.components.TimePicker
-import com.example.alarm_app.feature_alarm.presentation.util.Constants
+import com.example.alarm_app.feature_alarm.util.Constants
 
 
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -112,7 +113,12 @@ fun AddEditAlarmScreen(
                         value = alarmSoundName.value,
                         isEnabled = isAlarmSoundEnabled.value,
                         onSwitch = { isAlarmSoundEnabled.value = it },
-                        onClick = { startRingtonePickerActivity(ringtoneActivityForResult) }
+                        onClick = {
+                            startRingtonePickerActivity(
+                                viewModel.alarmSoundUri,
+                                ringtoneActivityForResult
+                            )
+                        }
                     )
                     PreferenceItem(
                         name = "Vibration",
@@ -155,11 +161,15 @@ private fun getRingtoneUri(intent: Intent) =
         intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
     }
 
-fun startRingtonePickerActivity(ringtoneActivityForResult: ManagedActivityResultLauncher<Intent, ActivityResult>) {
+fun startRingtonePickerActivity(
+    soundUri: String?,
+    ringtoneActivityForResult: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
     Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
         putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
         putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true)
         putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+        soundUri?.let { putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, soundUri.toUri()) }
         ringtoneActivityForResult.launch(this)
     }
 }

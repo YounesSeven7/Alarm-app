@@ -1,24 +1,24 @@
 package com.example.alarm_app.feature_alarm.presentation.services
 
 import android.app.KeyguardManager
-import android.app.Notification
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import com.example.alarm_app.R
-import com.example.alarm_app.feature_alarm.MainActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
-import com.example.alarm_app.feature_alarm.presentation.util.Constants
-import com.example.alarm_app.feature_alarm.presentation.util.getSerializableExtraCompat
+import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.schedule.ScheduleAlarm
+import com.example.alarm_app.feature_alarm.presentation.notification.getAlarmNotification
+import com.example.alarm_app.feature_alarm.util.Constants
+import com.example.alarm_app.feature_alarm.util.getParcelableExtraCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -26,9 +26,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AlarmService: Service() {
 
-    @Inject lateinit var powerManager: PowerManager
+    //@Inject lateinit var powerManager: PowerManager
+    //@Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var keyguardManager: KeyguardManager
-    @Inject lateinit var notificationManager: NotificationManager
+    @Inject lateinit var scheduleAlarm: ScheduleAlarm
+    @Inject lateinit var vibrator: Vibrator
+    @Inject lateinit var player: ExoPlayer
+    @Inject lateinit var audioManager: AudioManager
 
 
     override fun onBind(intent: Intent): IBinder? = null
@@ -36,66 +40,54 @@ class AlarmService: Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         when (intent.action) {
             Constants.ACTION_START_ALARM -> start(intent)
-            Constants.ACTION_STOP_ALARM_SERVICE -> stop()
+            Constants.ACTION_STOP_ALARM -> stopSelf()
         }
         return START_STICKY
-    }
-
-    private fun start(intent: Intent) {
-        val alarm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(Constants.EXTRA_ALARM, Alarm::class.java)!!
-        } else {
-            intent.getParcelableArrayExtra(Constants.EXTRA_ALARM) as Alarm
-        }
-
-        val notification = getAlarmNotification(alarm)
-        startForeground(Constants.ALARM_NOTIFICATION_ID, notification)
-        // Todo grantReadUriPermission(soundUri)
-
     }
 
     override fun startForegroundService(service: Intent?): ComponentName? {
         return super.startForegroundService(service)
     }
 
-    private fun getAlarmNotification(alarm: Alarm): Notification {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            action = Constants.ACTION_START_REMINDER_SCREEN
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            putExtra(Constants.EXTRA_ALARM, alarm)
+    private fun start(intent: Intent) {
+        val alarm = intent.getParcelableExtraCompat(Constants.EXTRA_ALARM, Alarm::class.java)
+        alarm?.let {
+            val notification = getAlarmNotification(alarm, keyguardManager.isDeviceLocked)
+            startForeground(Constants.ALARM_NOTIFICATION_ID, notification)
+
+            if (alarm.isVibrate) startVibration()
+            alarm.soundUri?.also {uri -> startRingtone(uri) }
         }
+    }
 
-        val pendingIntent = PendingIntent.getActivity(
-            baseContext,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val hours = alarm.timeInMinutes / 60
-        val minutes = alarm.timeInMinutes % 60
-
-        val notification = NotificationCompat.Builder(this, Constants.ALARM_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Alarm")
-            .setContentText("$hours:$minutes")
-            .setSmallIcon(R.drawable.ic_alarm_vector)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .apply {
-                if (keyguardManager.isDeviceLocked)
-                    this.setFullScreenIntent(pendingIntent, true)
-                else
-                    this.setContentIntent(pendingIntent)
+    private fun startVibration() {
+        vibrator.also {
+            if (Build.VERSION.SDK_INT >= 26) {
+                it.vibrate(VibrationEffect.createOneShot(3000, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                it.vibrate(2000)
             }
-            .build()
+        }
+    }
 
-        return notification
+    private fun startRingtone(uri: String) {
+        audioManager.setStreamVolume(
+            AudioManager.STREAM_RING,
+            audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM),
+            0
+        )
+        audioManager.mode = AudioManager.MODE_RINGTONE
+        val mediaItem = MediaItem.fromUri(uri)
+        player.setMediaItem(mediaItem)
+        player.repeatMode = ExoPlayer.REPEAT_MODE_ONE
+        player.prepare()
+        player.play()
+
     }
 
 
-    private fun stop() {
-
+    override fun onDestroy() {
+        player.stop()
+        super.onDestroy()
     }
-
-
 }

@@ -5,9 +5,12 @@ import android.app.Application
 import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioManager
 import android.os.PowerManager
+import android.os.Vibrator
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.room.Room
 import com.example.alarm_app.feature_alarm.data.repository.room.AlarmDatabase
 import com.example.alarm_app.feature_alarm.data.repository.room.AlarmRepository
@@ -53,11 +56,25 @@ object AppModule {
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
 
-
     @Provides
     @Singleton
     fun provideAlarmManager(context: Application): AlarmManager =
         context.getSystemService(AlarmManager::class.java)
+
+    @Provides
+    @Singleton
+    fun provideVibrator(context: Application): Vibrator =
+        context.getSystemService(Vibrator::class.java)
+
+    @Provides
+    @Singleton
+    fun provideExoPlayer(context: Application): ExoPlayer =
+        ExoPlayer.Builder(context).build()
+
+    @Provides
+    @Singleton
+    fun provideAudioManager(context: Application): AudioManager =
+        context.getSystemService(AudioManager::class.java)
 
 
 }

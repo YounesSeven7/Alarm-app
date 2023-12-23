@@ -29,10 +29,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
-import com.example.alarm_app.feature_alarm.presentation.util.Constants
-import com.example.alarm_app.feature_alarm.presentation.util.fromMinutesToHour
-import com.example.alarm_app.feature_alarm.presentation.util.isDaySelected
-import com.example.alarm_app.feature_alarm.presentation.util.isMorning
+import com.example.alarm_app.feature_alarm.util.Constants
+import com.example.alarm_app.feature_alarm.util.fromMinutesToHour
+import com.example.alarm_app.feature_alarm.util.isDaySelected
+import com.example.alarm_app.feature_alarm.util.isMorning
 
 
 

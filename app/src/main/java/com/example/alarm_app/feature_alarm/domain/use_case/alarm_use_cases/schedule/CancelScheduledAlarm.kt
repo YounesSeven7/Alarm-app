@@ -11,8 +11,8 @@ class CancelScheduledAlarm @Inject constructor(
     private val alarmScheduling: AlarmScheduling
 ) {
     @SuppressLint("ScheduleExactAlarm")
-    operator fun invoke(context: Context, alarm: Alarm) {
-        alarmScheduling.cancelScheduledAlarm(context, alarm)
+    operator fun invoke(alarm: Alarm) {
+        alarmScheduling.cancelScheduledAlarm(alarm)
     }
 
 

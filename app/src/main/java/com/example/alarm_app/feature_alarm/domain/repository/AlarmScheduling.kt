@@ -2,24 +2,26 @@ package com.example.alarm_app.feature_alarm.domain.repository
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
 import com.example.alarm_app.feature_alarm.presentation.services.AlarmService
-import com.example.alarm_app.feature_alarm.presentation.util.Constants
-import com.example.alarm_app.feature_alarm.presentation.util.getRemainingTimeInMinutesToAlarm
-import com.example.alarm_app.feature_alarm.presentation.util.getTriggerTime
+import com.example.alarm_app.feature_alarm.util.Constants
+import com.example.alarm_app.feature_alarm.util.getPendingIntentFlag
+import com.example.alarm_app.feature_alarm.util.getRemainingTimeInMinutesToAlarm
+import com.example.alarm_app.feature_alarm.util.getTriggerTime
 import javax.inject.Inject
 
 class AlarmScheduling @Inject constructor(
-    private val alarmManager: AlarmManager
+    private val alarmManager: AlarmManager,
+    private val context: Application
 ) {
 
     @SuppressLint("ScheduleExactAlarm")
-    fun scheduleAlarm(context: Context, alarm: Alarm) {
+    fun scheduleAlarm(alarm: Alarm) {
         if (alarm.days == 0) return
 
         val intent = getIntent(context, alarm)
@@ -35,7 +37,7 @@ class AlarmScheduling @Inject constructor(
         )
     }
 
-    fun cancelScheduledAlarm(context: Context, alarm: Alarm) {
+    fun cancelScheduledAlarm(alarm: Alarm) {
         val intent = getIntent(context, alarm)
         val pendingIntent = context.getPendingIntent(intent, alarm)
         alarmManager.cancel(pendingIntent)
@@ -51,16 +53,16 @@ class AlarmScheduling @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             PendingIntent.getForegroundService(
                 this,
-                alarm.timeInMinutes,
+                alarm.id!!,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                getPendingIntentFlag()
             )!!
         } else {
             PendingIntent.getService(
                 this,
-                alarm.timeInMinutes,
+                alarm.id!!,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                getPendingIntentFlag()
             )
         }
 

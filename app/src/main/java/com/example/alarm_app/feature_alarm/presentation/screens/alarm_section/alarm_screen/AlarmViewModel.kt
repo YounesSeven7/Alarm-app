@@ -1,8 +1,7 @@
 package com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.alarm_screen
 
-import android.app.Application
+
 import android.app.NotificationManager
-import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,9 +11,10 @@ import com.example.alarm_app.feature_alarm.domain.model.Alarm
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repository.DeleteAlarms
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repository.EditAlarm
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.repository.GetAllAlarms
+import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.schedule.CancelScheduledAlarm
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.schedule.ScheduleAlarm
-import com.example.alarm_app.feature_alarm.presentation.notification.notification_channel.createAlarmNotificationChannel
-import com.example.alarm_app.feature_alarm.presentation.util.Screen
+import com.example.alarm_app.feature_alarm.presentation.notification.createAlarmNotificationChannel
+import com.example.alarm_app.feature_alarm.util.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +27,9 @@ class AlarmViewModel @Inject constructor(
     private val getAllAlarms: GetAllAlarms,
     private val editAlarm: EditAlarm,
     private val deleteAlarms: DeleteAlarms,
-    private val notificationManager: NotificationManager
+    private val notificationManager: NotificationManager,
+    private val scheduleAlarm: ScheduleAlarm,
+    private val cancelScheduleAlarm: CancelScheduledAlarm
 ): ViewModel() {
 
     init {
@@ -55,8 +57,7 @@ class AlarmViewModel @Inject constructor(
         when(event) {
             is AlarmScreenEvent.AddAlarm -> addAlarm(event.navController)
             is AlarmScreenEvent.EditAlarm -> editAlarm(event.navController, event.alarmIndex)
-            is AlarmScreenEvent.OnChangeEnabledState ->
-                changeEnabledState(event.alarmIndex, event.isEnabled)
+            is AlarmScreenEvent.OnChangeEnabledState -> changeEnabledState(event.alarmIndex, event.isEnabled)
             is AlarmScreenEvent.CreateAlarmNotificationChanel -> createAlarmNotificationChannel()
             is AlarmScreenEvent.OnChangeDeletionState ->
                 onChangeDeletionState(event.alarmIndex, event.isSelectedToDelete)
@@ -84,6 +85,7 @@ class AlarmViewModel @Inject constructor(
         var alarm = _alarmListState.value[alarmIndex]
         alarm = alarm.copy(isEnabled = isEnabled)
         viewModelScope.launch { editAlarm(alarm) }
+        if (isEnabled) scheduleAlarm(alarm) else cancelScheduleAlarm(alarm)
     }
 
 
@@ -103,8 +105,12 @@ class AlarmViewModel @Inject constructor(
 
     private fun deleteAlarmsList() {
         viewModelScope.launch {
-            val alarmList = _alarmListState.value.filter { alarm -> alarm.isSelectedToDelete }
-            deleteAlarms(alarmList)
+            val selectedToDeleteAlarms = _alarmListState.value.filter {
+                alarm ->
+                cancelScheduleAlarm(alarm)
+                alarm.isSelectedToDelete
+            }
+            deleteAlarms(selectedToDeleteAlarms)
             selectedItemsCountState.intValue = 0
             deletionModeState.value = false
         }
