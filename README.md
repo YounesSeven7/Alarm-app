@@ -4,7 +4,7 @@
 </div>  
 
 
-Meet your new timekeeper: the Alarm App! ⏰ Customize alarms to wake you up, keep you on track, or remind you of those cookies in the oven. 
+The Alarm App! ⏰ Customize alarms to wake you up, keep you on track, or remind you of those cookies in the oven. 
 Plus, a handy stopwatch for timing workouts, tasks, or anything else that needs precise tracking. Simple, sleek, and ready to take charge of your time. ✨
 
 **APK:** https://files.fm/f/56yjffapnq
