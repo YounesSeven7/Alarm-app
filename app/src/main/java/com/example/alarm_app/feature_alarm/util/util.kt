@@ -52,7 +52,6 @@ inline fun <reified T : Parcelable> Intent.getParcelableExtraCompat(key: String,
     } else {
         this.getParcelableExtra(Constants.EXTRA_ALARM)
     }
-
 }
 
 fun getPendingIntentFlag() = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

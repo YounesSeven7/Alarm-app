@@ -64,6 +64,6 @@ class AlarmScheduling @Inject constructor(
                 intent,
                 getPendingIntentFlag()
             )
-        }
+        }!!
 
 }

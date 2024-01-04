@@ -149,13 +149,15 @@ fun <T> ListItemPicker(
                                 ))
                             )
                     )
-                    if (indexOfElement < list.count() - 1)
+                    if (indexOfElement < list.count() - 1) {
                         Label(
                             text = label(list.elementAt(indexOfElement + 1)),
                             modifier = baseLabelModifier
                                 .offset(y = halfNumbersColumnHeight)
                                 .alpha(maxOf(minimumAlpha, -coercedAnimatedOffset / halfNumbersColumnHeightPx))
                         )
+                    }
+
                 }
             }
             Box(

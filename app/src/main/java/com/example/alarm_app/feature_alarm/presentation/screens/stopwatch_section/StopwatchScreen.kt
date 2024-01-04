@@ -14,44 +14,39 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.alarm_app.feature_alarm.presentation.notification.triggerStopwatchService
+import com.example.alarm_app.feature_alarm.presentation.helper.triggerStopwatchService
 import com.example.alarm_app.feature_alarm.presentation.services.StopwatchService
 import com.example.alarm_app.feature_alarm.util.Constants
 import com.example.alarm_app.feature_alarm.util.fromSecondToTimeFormat
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @Composable
 fun StopwatchScreen(
-    stopwatchService: StopwatchService
+    stopwatchService: StopwatchService,
+    modifier: Modifier
 ) {
-
     val timeInSeconds by stopwatchService.timeInSecond
     val timerState by stopwatchService.timerState
 
     val context = LocalContext.current
 
-
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+            modifier = Modifier.padding(top = 90.dp, bottom = 16.dp)
         ) {
             Text(
                 text = fromSecondToTimeFormat(timeInSeconds),
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge,
-
+                style = MaterialTheme.typography.displayLarge,
             )
 
             Row(
@@ -67,7 +62,8 @@ fun StopwatchScreen(
                             else -> Unit
                         }
                     },
-                    enabled = timerState == StopwatchState.Stopped
+                    enabled = timerState == StopwatchState.Stopped,
+                    modifier = Modifier.scale(1.2f)
                 ) {
                     Text("Reset")
                 }
@@ -86,7 +82,8 @@ fun StopwatchScreen(
                             StopwatchState.Started -> Color(0xFFB3261E)
                             else -> MaterialTheme.colorScheme.primary
                         }
-                    )
+                    ),
+                    modifier = Modifier.scale(1.2f)
                 ) {
                     Text(
                         text = when(timerState) {

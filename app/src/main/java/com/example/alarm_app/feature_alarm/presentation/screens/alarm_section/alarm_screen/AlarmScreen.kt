@@ -18,14 +18,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import android.util.Log
 import androidx.navigation.NavController
 import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.alarm_screen.components.AlarmItem
 import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.alarm_screen.components.AlarmTopAppBar
 
 @Composable
 fun AlarmScreen(
-    navController: NavController,
-    viewModel: AlarmViewModel = hiltViewModel()
+    globalNavController: NavController,
+    viewModel: AlarmViewModel = hiltViewModel(),
+    modifier: Modifier
 ) {
 
     val state = viewModel.alarmListState.collectAsState()
@@ -41,22 +43,24 @@ fun AlarmScreen(
     val activity = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) {
-        viewModel.onEvent(AlarmScreenEvent.CreateAlarmNotificationChanel)
+        Log.d("younes", "post notification -> $it")
     }
 
     val addIconOnClick = remember{
         {
             if (checkPostPermission(context))
-                viewModel.onEvent(AlarmScreenEvent.AddAlarm(navController))
-            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                viewModel.onEvent(AlarmScreenEvent.AddAlarm(globalNavController))
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 activity.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+
         }
     }
 
 
     val editAlarm = remember<(Int) -> Unit> {
         { alarmIndex ->
-            viewModel.onEvent(AlarmScreenEvent.EditAlarm(navController, alarmIndex))
+            viewModel.onEvent(AlarmScreenEvent.EditAlarm(globalNavController, alarmIndex))
         }
     }
 
@@ -110,7 +114,7 @@ fun AlarmScreen(
         }
     ) {
         LazyColumn(
-            modifier = Modifier.padding(it)
+            modifier = modifier.padding(it)
         ) {
             itemsIndexed(state.value) {index, alarm ->
                 AlarmItem(
@@ -129,7 +133,6 @@ fun AlarmScreen(
 
 fun checkPostPermission(context: Context): Boolean {
  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-     context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
-             PackageManager.PERMISSION_GRANTED
+     context.checkCallingOrSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
  } else true
 }

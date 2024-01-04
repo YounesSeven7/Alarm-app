@@ -8,39 +8,43 @@ import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.os.IBinder
-import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.alarm_app.feature_alarm.domain.model.Alarm
 import com.example.alarm_app.feature_alarm.domain.use_case.alarm_use_cases.schedule.ScheduleAlarm
-import com.example.alarm_app.feature_alarm.presentation.notification.getAlarmNotification
+import com.example.alarm_app.feature_alarm.presentation.helper.createAlarmNotificationChannel
+import com.example.alarm_app.feature_alarm.presentation.helper.getAlarmNotification
 import com.example.alarm_app.feature_alarm.util.Constants
 import com.example.alarm_app.feature_alarm.util.getParcelableExtraCompat
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Timer
 import javax.inject.Inject
+import kotlin.concurrent.fixedRateTimer
 
 @Suppress("DEPRECATION")
 @AndroidEntryPoint
 class AlarmService: Service() {
 
     //@Inject lateinit var powerManager: PowerManager
-    //@Inject lateinit var notificationManager: NotificationManager
+    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var keyguardManager: KeyguardManager
     @Inject lateinit var scheduleAlarm: ScheduleAlarm
     @Inject lateinit var vibrator: Vibrator
     @Inject lateinit var player: ExoPlayer
     @Inject lateinit var audioManager: AudioManager
 
+    private var vibration: Timer? = null
+
 
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        createAlarmNotificationChannel(notificationManager)
         when (intent.action) {
             Constants.ACTION_START_ALARM -> start(intent)
-            Constants.ACTION_STOP_ALARM -> stopSelf()
+            Constants.ACTION_STOP_ALARM -> stop()
         }
         return START_STICKY
     }
@@ -52,6 +56,8 @@ class AlarmService: Service() {
     private fun start(intent: Intent) {
         val alarm = intent.getParcelableExtraCompat(Constants.EXTRA_ALARM, Alarm::class.java)
         alarm?.let {
+            scheduleNextAlarm(alarm)
+
             val notification = getAlarmNotification(alarm, keyguardManager.isDeviceLocked)
             startForeground(Constants.ALARM_NOTIFICATION_ID, notification)
 
@@ -60,14 +66,30 @@ class AlarmService: Service() {
         }
     }
 
+    private fun scheduleNextAlarm(alarm: Alarm) {
+        scheduleAlarm(alarm)
+    }
+
     private fun startVibration() {
+        vibration = fixedRateTimer(initialDelay = 0L, period = 3000L) {
+            vibrationEffect()
+        }
+    }
+
+    private fun vibrationEffect() {
         vibrator.also {
-            if (Build.VERSION.SDK_INT >= 26) {
-                it.vibrate(VibrationEffect.createOneShot(3000, VibrationEffect.DEFAULT_AMPLITUDE))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                //Todo
+                it.vibrate(VibrationEffect.createOneShot(2000, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 it.vibrate(2000)
             }
         }
+    }
+
+    private fun cancelVibration() {
+        vibration?.cancel()
+        vibrator.cancel()
     }
 
     private fun startRingtone(uri: String) {
@@ -88,6 +110,13 @@ class AlarmService: Service() {
 
     override fun onDestroy() {
         player.stop()
+        cancelVibration()
         super.onDestroy()
+    }
+
+
+    private fun stop() {
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 }

@@ -40,7 +40,7 @@ import com.example.alarm_app.feature_alarm.util.Constants
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun AddEditAlarmScreen(
-    navController: NavController,
+    globalNavController: NavController,
     viewModel: AddEditAlarmViewModel = hiltViewModel()
 ) {
 
@@ -60,7 +60,7 @@ fun AddEditAlarmScreen(
 
     val addAlarmLambda = remember<(Context) -> Unit> {
         {
-            context -> viewModel.addUpdateAlarm(context, navController)
+            context -> viewModel.addUpdateAlarm(globalNavController)
         }
     }
 
@@ -128,14 +128,11 @@ fun AddEditAlarmScreen(
                     )
 
                 }
-
             }
             Row {
                 TextButton(
                     modifier = Modifier.weight(1f),
-                    onClick = {
-                        navController.popBackStack()
-                    }
+                    onClick = { globalNavController.popBackStack() }
                 ) {
                     Text(text = "Cancel")
                 }

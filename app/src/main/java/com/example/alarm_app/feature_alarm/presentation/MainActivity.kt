@@ -1,22 +1,23 @@
 package com.example.alarm_app.feature_alarm.presentation
 
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,9 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -35,6 +34,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.alarm_app.feature_alarm.presentation.receivers.BootCompletedReceiver
 import com.example.alarm_app.feature_alarm.presentation.screens.BottomBarDestination
 import com.example.alarm_app.feature_alarm.presentation.screens.ReminderScreen
 import com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.add_edit_alarm_screen.AddEditAlarmScreen
@@ -45,10 +45,10 @@ import com.example.alarm_app.feature_alarm.presentation.services.StopwatchServic
 import com.example.alarm_app.feature_alarm.util.Constants
 import com.example.alarm_app.feature_alarm.util.Screen
 import com.example.alarm_app.ui.theme.AlarmAppTheme
-
 import dagger.hilt.android.AndroidEntryPoint
 
 
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -78,21 +78,34 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val action = intent.action
+        registerBootCompletedReceiver()
+        Log.d("younes", "younes")
         setContent {
             AlarmAppTheme {
-                if(action == Constants.ACTION_START_REMINDER_SCREEN) {
-                    showOverLockscreen()
-                    ReminderScreen(
-                        onClick = {
-                            stopService(Intent(baseContext, AlarmService::class.java))
-                            finish()
-                        }
-                    )
-                } else {
-                    NavigationSetup(action)
+                when (action) {
+                    Constants.ACTION_START_REMINDER_SCREEN -> {
+                        showOverLockscreen()
+                        ReminderScreen()
+                    }
+                    Constants.ACTION_STOP_ALARM -> {
+                        finish()
+                    }
+                    else -> {
+                        GlobalNavHostSetup()
+                    }
                 }
             }
         }
+    }
+
+    private fun registerBootCompletedReceiver() {
+        val receiver = ComponentName(baseContext, BootCompletedReceiver::class.java)
+
+        packageManager.setComponentEnabledSetting(
+            receiver,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 
     private fun showOverLockscreen() {
@@ -103,40 +116,34 @@ class MainActivity : ComponentActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
 
+
         if (Build.VERSION.SDK_INT >= 27) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
         }
     }
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    override fun finish() {
+        super.finishAndRemoveTask()
+    }
+
     @Composable
-    fun NavigationSetup(action: String?) {
-        val navController = rememberNavController()
-        Scaffold(
-            bottomBar = { BottomBar(navController) }
-        ) {
-            Box(
-                modifier = Modifier.padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding())
-            ) {
-                NavHostSetup(navController, action)
+    fun ReminderScreen() {
+        ReminderScreen(
+            onClick = {
+                stopService(Intent(baseContext, AlarmService::class.java))
+                finish()
             }
-        }
+        )
     }
 
 
-
     @Composable
-    fun NavHostSetup(navController: NavHostController, action: String?) {
-        val startDestination =
-            if (action != null && action == Constants.ACTION_START_STOPWATCH_SCREEN)
-                Screen.Stopwatch.route
-            else
-                Screen.AlarmScreen.route
-
-        NavHost(navController = navController, startDestination = startDestination) {
-            composable(route = Screen.AlarmScreen.route) {
-                AlarmScreen(navController = navController)
+    fun GlobalNavHostSetup() {
+        val globalNavController = rememberNavController()
+        NavHost(navController = globalNavController, startDestination = "start") {
+            composable(route = "start") {
+                BottomNavSetup(globalNavController = globalNavController)
             }
             val alarmIdKey = Screen.AddEditAlarmScreen.Key!!
             composable(
@@ -148,13 +155,59 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             ) {
-                AddEditAlarmScreen(navController = navController)
-            }
-            composable(route = Screen.Stopwatch.route) {
-                if (isBound)
-                    StopwatchScreen(stopwatchService = stopwatchService)
+                AddEditAlarmScreen(globalNavController = globalNavController)
             }
         }
+
+    }
+
+
+
+    @Composable
+    fun BottomNavSetup(globalNavController: NavHostController) {
+        val bottomNavController = rememberNavController()
+        Scaffold(
+            bottomBar = { BottomBar(bottomNavController) }
+        ) {
+            BottomNavHostSetup(
+                bottomNavController = bottomNavController,
+                globalNavController = globalNavController,
+                modifier = Modifier.padding(it)
+            )
+        }
+    }
+
+
+
+    @Composable
+    fun BottomNavHostSetup(
+        bottomNavController: NavHostController,
+        globalNavController: NavHostController,
+        modifier: Modifier
+    ) {
+        val startDestination = getBottomNavStartDestination()
+        NavHost(navController = bottomNavController, startDestination = startDestination) {
+            composable(route = Screen.AlarmScreen.route) {
+                AlarmScreen(
+                    globalNavController = globalNavController,
+                    modifier = modifier
+                )
+            }
+            composable(route = Screen.Stopwatch.route) {
+                if (isBound) StopwatchScreen(
+                    stopwatchService = stopwatchService,
+                    modifier = modifier
+                )
+            }
+        }
+    }
+
+    fun getBottomNavStartDestination(): String {
+        val action = intent.action
+        return if (action != null && action == Constants.ACTION_START_STOPWATCH_SCREEN)
+            Screen.Stopwatch.route
+        else
+            Screen.AlarmScreen.route
     }
 
 
@@ -171,20 +224,28 @@ class MainActivity : ComponentActivity() {
         val currentDestination by navController.currentBackStackEntryAsState()
         val destinationRout = currentDestination?.destination?.route ?: ""
 
+
         NavigationBar {
             BottomBarDestination.entries.forEach { destination ->
+                val label = resources.getString(destination.label)
                 NavigationBarItem(
                     selected = destination.rout == destinationRout,
                     onClick = {
-                        val previousRout = navController.previousBackStackEntry?.destination?.route ?: ""
-                        if (destination.rout == previousRout)
-                            navController.popBackStack()
-                        else
-                            navController.navigate(destination.rout)
+                        navController.navigate(destination.rout) {
+                            popUpTo(Screen.AlarmScreen.route) {
+                                inclusive = true
+                            }
+                        }
                     },
                     icon = {
-                        Text(text = destination.name)
+                        Icon(
+                            imageVector = destination.icon,
+                            contentDescription = resources.getString(destination.label)
+                        )
                     },
+                    label = {
+                        Text(text = label)
+                    }
 
                 )
             }

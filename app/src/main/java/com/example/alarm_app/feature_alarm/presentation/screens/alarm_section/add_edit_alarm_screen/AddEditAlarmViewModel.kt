@@ -79,7 +79,7 @@ class AddEditAlarmViewModel @Inject constructor(
         }
     }
 
-    fun addUpdateAlarm(context: Context, navController: NavController) {
+    fun addUpdateAlarm(navController: NavController) {
         var newAlarm = getAlarmData()
         viewModelScope.launch {
             val alarmInSameTime = getAlarmByPickedTime(newAlarm)

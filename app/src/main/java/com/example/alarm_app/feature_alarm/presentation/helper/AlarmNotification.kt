@@ -1,4 +1,4 @@
-package com.example.alarm_app.feature_alarm.presentation.notification
+package com.example.alarm_app.feature_alarm.presentation.helper
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -7,6 +7,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.NotificationCompat
 import com.example.alarm_app.R
 import com.example.alarm_app.feature_alarm.presentation.MainActivity
@@ -28,6 +32,7 @@ fun createAlarmNotificationChannel(notificationManager: NotificationManager) {
 }
 
 
+
 fun Context.getAlarmNotification(alarm: Alarm, isDeviceLocked: Boolean): Notification {
     val reminderActivityPendingIntent = reminderActivityPendingIntent(alarm)
     val stopServicePendingIntent = stopServicePendingIntent()
@@ -45,8 +50,9 @@ fun Context.getAlarmNotification(alarm: Alarm, isDeviceLocked: Boolean): Notific
         .addAction(0, "Stop", stopServicePendingIntent)
         .setStyle(NotificationCompat.BigTextStyle())
         .apply {
-            if (isDeviceLocked)
+            if (isDeviceLocked) {
                 this.setFullScreenIntent(reminderActivityPendingIntent, true)
+            }
         }
         .build()
 
