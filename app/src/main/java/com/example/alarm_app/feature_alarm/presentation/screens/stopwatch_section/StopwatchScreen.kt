@@ -128,7 +128,8 @@ fun StopwatchText(
                 transitionSpec = {
                     slideInVertically { it  }.togetherWith(slideOutVertically { -it })
                 }
-                , label = ""
+                ,
+                label = ""
             ) {
                 Text(
                     text = it.toString(),

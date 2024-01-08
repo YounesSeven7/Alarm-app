@@ -47,8 +47,6 @@ fun AlarmItem(
     onClick: () -> Unit,
     deletingMode: Boolean = false
 ) {
-
-
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -113,7 +111,8 @@ fun TimeText(
             }
             if (isMorning) append("AM") else append("PM")
         },
-        color = color
+        color = color,
+        modifier = Modifier.padding(start = 5.dp)
     )
 }
 
@@ -190,5 +189,3 @@ fun DayItem(
         )
     }
 }
-
-

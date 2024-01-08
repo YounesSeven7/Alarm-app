@@ -1,9 +1,16 @@
 package com.example.alarm_app.feature_alarm.presentation.screens.alarm_section.alarm_screen.components
 
 import android.view.animation.ScaleAnimation
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,16 +43,31 @@ fun AlarmTopAppBar(
     deleteIconOnClick: () -> Unit
 ) {
     TopAppBar(
-        title = { Title(deletingMode, selectedItemsCount) },
+        title = {
+            Title(
+                deletingMode, selectedItemsCount,
+            )
+        },
         actions = {
 
-            if (deletingMode) {
-                CloseIcon(closeIconOnClick = closeIconOnClick)
-                DeleteIcon(deleteIconOnClick = deleteIconOnClick)
-            } else {
-                AddIcon(addIconOnClick = addIconOnClick, deletingMode = deletingMode)
-                EditIcon(editIconOnClick = editIconOnClick)
+            AnimatedContent(
+                targetState = deletingMode,
+                label = ""
+            ) {
+                if (it) {
+                    Row {
+                        CloseIcon(closeIconOnClick = closeIconOnClick)
+                        DeleteIcon(deleteIconOnClick = deleteIconOnClick)
+                    }
+                } else {
+                    Row {
+                        AddIcon(addIconOnClick = addIconOnClick, deletingMode = deletingMode)
+                        EditIcon(editIconOnClick = editIconOnClick)
+                    }
+                }
             }
+
+
 
         }
     )
@@ -102,7 +124,8 @@ fun Title(
         else "Alarm"
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.animateContentSize()
     )
 }
 
@@ -121,7 +144,9 @@ fun AddIcon(
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = null,
-            modifier = Modifier.size(32.dp).scale(scaleAnimation),
+            modifier = Modifier
+                .size(32.dp)
+                .scale(scaleAnimation),
             tint = MaterialTheme.colorScheme.primary,
         )
     }
