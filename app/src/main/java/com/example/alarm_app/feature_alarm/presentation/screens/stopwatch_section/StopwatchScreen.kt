@@ -1,6 +1,12 @@
 package com.example.alarm_app.feature_alarm.presentation.screens.stopwatch_section
 
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +19,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -43,11 +53,10 @@ fun StopwatchScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.padding(top = 90.dp, bottom = 16.dp)
         ) {
-            Text(
-                text = fromSecondToTimeFormat(timeInSeconds),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.displayLarge,
-            )
+
+            StopwatchText(time = fromSecondToTimeFormat(timeInSeconds))
+
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -93,6 +102,39 @@ fun StopwatchScreen(
                         }
                     )
                 }
+            }
+
+        }
+    }
+}
+
+
+@Composable
+fun StopwatchText(
+    time: String
+) {
+    var oldTime by remember { mutableStateOf(time) }
+
+    SideEffect { oldTime = time }
+
+    Row {
+        for (i in oldTime.indices) {
+            val oldChar = oldTime.getOrNull(i)
+            val newChar = time[i]
+            val char = if (newChar == oldChar) oldChar else newChar
+
+            AnimatedContent(
+                targetState = char,
+                transitionSpec = {
+                    slideInVertically { it  }.togetherWith(slideOutVertically { -it })
+                }
+                , label = ""
+            ) {
+                Text(
+                    text = it.toString(),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.displayLarge,
+                )
             }
 
         }
